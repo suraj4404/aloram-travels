@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aloram Travels - Cab Bill</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1, .bill-header h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .company-name {
+      color: #27ae60;
+    }
+    .bill-header {
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .contact-info, .bank-info {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+    }
+    .contact-info {
+      margin-bottom: 15px;
+    }
+    .bank-info {
+      margin: 20px 0;
+      font-size: 13px;
+      line-height: 1.6;
+      border-top: 1px dashed #ccc;
+      padding-top: 10px;
+      color: #444;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #219a52;
+    }
+    #bill {
+      margin-top: 30px;
+      padding: 20px;
+      border: 1px dashed #ccc;
+      background: #f9f9f9;
+    }
+    .bill-footer {
+      text-align: right;
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .footer-note {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 20px;
+      color: #777;
+      font-style: italic;
+    }
+    .qr-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .qr-code {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      background: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="company-name">Aloram Travels</span></h1>
+    <p class="contact-info">
+      Aarash Vihar Colony, Susuwahi, Varanasi - 221011<br>
+      Customer Care: +91 7084818272
+    </p>
+
+    <!-- Bank Details -->
+    <div class="bank-info">
+      <p><strong>Udyam Reg No:</strong> UDYAM-UP-75-0085579</p>
+      <p><strong>Bank Account:</strong> Aloram Travels</p>
+      <p><strong>Account No:</strong> 48790200000589</p>
+      <p><strong>IFSC:</strong> BARB0AMARAK | <strong>Branch:</strong> Amara Khera, Varanasi - 221101</p>
+      <p><strong>UPI ID:</strong> ALORA92649i@barodampay</p>
+    </div>
+
+    <!-- QR Code -->
+    <div class="qr-container">
+      <h3>Scan to Pay via UPI</h3>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=ALORA92649i%40barodampay&pn=Aloram%20Travels&am=&cu=INR" alt="UPI QR Code" class="qr-code" />
+      <p><small>Scan to pay using Google Pay, PhonePe, Paytm</small></p>
+    </div>
+
+    <!-- Bill Form -->
+    <div class="form-group">
+      <label>Date:</label>
+      <input type="date" id="date" />
+    </div>
+    <div class="form-group">
+      <label>Customer Name:</label>
+      <input type="text" id="customerName" placeholder="Enter customer name" />
+    </div>
+    <div class="form-group">
+      <label>Mobile Number:</label>
+      <input type="tel" id="mobile" placeholder="10-digit mobile number" />
+    </div>
+    <div class="form-group">
+      <label>Address:</label>
+      <input type="text" id="address" placeholder="Full address of customer" />
+    </div>
+    <div class="form-group">
+      <label>Pickup Location:</label>
+      <input type="text" id="pickup" placeholder="Where passenger picked up" />
+    </div>
+    <div class="form-group">
+      <label>Drop Location:</label>
+      <input type="text" id="drop" placeholder="Where passenger dropped" />
+    </div>
+    <div class="form-group">
+      <label>Distance (in km):</label>
+      <input type="number" id="distance" placeholder="e.g. 25" />
+    </div>
+    <div class="form-group">
+      <label>Rate per km (₹):</label>
+      <input type="number" id="rate" placeholder="e.g. 15" />
+    </div>
+    <div class="form-group">
+      <label>Toll Tax (₹):</label>
+      <input type="number" id="toll" value="0" />
+    </div>
+    <div class="form-group">
+      <label>Parking Charge (₹):</label>
+      <input type="number" id="parking" value="0" />
+    </div>
+    <div class="form-group">
+      <label>Driver Night Charge (₹):</label>
+      <input type="number" id="nightCharge" value="0" />
+    </div>
+
+    <button onclick="generateBill()">Generate Bill</button>
+    <button onclick="window.print()">Print / Save as PDF</button>
+    <button onclick="downloadPDF()">Download as PDF</button>
+
+    <!-- Bill Output -->
+    <div id="bill" style="display: none;">
+      <div class="bill-header">
+        <h2><span class="company-name">Aloram Travels</span></h2>
+        <p class="contact-info">
+          Aarash Vihar Colony, Susuwahi, Varanasi - 221011<br>
+          Customer Care: +91 7084818272
+        </p>
+        <p><strong>Date:</strong> <span id="billDate"></span></p>
+      </div>
+
+      <p><strong>Customer Name:</strong> <span id="billName"></span></p>
+      <p><strong>Mobile:</strong> <span id="billMobile"></span></p>
+      <p><strong>Address:</strong> <span id="billAddress"></span></p>
+      <p><strong>Pickup:</strong> <span id="billPickup"></span></p>
+      <p><strong>Drop:</strong> <span id="billDrop"></span></p>
+      <p><strong>Distance:</strong> <span id="billDistance"></span> km</p>
+      <p><strong>Rate:</strong> ₹<span id="billRate"></span>/km</p>
+      <p><strong>Fare:</strong> ₹<span id="billFare"></span></p>
+      <p><strong>Toll Tax:</strong> ₹<span id="billToll"></span></p>
+      <p><strong>Parking:</strong> ₹<span id="billParking"></span></p>
+      <p><strong>Night Charge:</strong> ₹<span id="billNight"></span></p>
+
+      <div class="bill-footer">
+        <p>Total Amount: ₹<span id="totalAmount"></span></p>
+      </div>
+
+      <!-- QR Code in Bill -->
+      <div class="qr-container">
+        <h3>Scan to Pay</h3>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=ALORA92649i%40barodampay&pn=Aloram%20Travels&am=&cu=INR" alt="UPI QR Code" class="qr-code" />
+        <p><small>Scan to pay using UPI</small></p>
+      </div>
+
+      <p class="footer-note">
+        Thank you for choosing Aloram Travels! We value your trust and service.
+      </p>
+    </div>
+  </div>
+
+  <script type="module">
+    import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+
+    window.downloadPDF = function() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const lines = [
+        "Aloram Travels",
+        "Aarash Vihar Colony, Susuwahi, Varanasi - 221011",
+        "Customer Care: +91 7084818272",
+        "",
+        "Bill Details:",
+        `Date: ${document.getElementById("billDate").textContent}`,
+        `Customer: ${document.getElementById("billName").textContent}`,
+        `Mobile: ${document.getElementById("billMobile").textContent}`,
+        `Address: ${document.getElementById("billAddress").textContent}`,
+        `Pickup: ${document.getElementById("billPickup").textContent}`,
+        `Drop: ${document.getElementById("billDrop").textContent}`,
+        `Distance: ${document.getElementById("billDistance").textContent} km`,
+        `Rate: ₹${document.getElementById("billRate").textContent}/km`,
+        `Fare: ₹${document.getElementById("billFare").textContent}`,
+        `Toll Tax: ₹${document.getElementById("billToll").textContent}`,
+        `Parking: ₹${document.getElementById("billParking").textContent}`,
+        `Night Charge: ₹${document.getElementById("billNight").textContent}`,
+        "",
+        `Total Amount: ₹${document.getElementById("totalAmount").textContent}`,
+        "",
+        "UPI: ALORA92649i@barodampay",
+        "Thank you for choosing Aloram Travels!"
+      ];
+
+      doc.setFontSize(12);
+      doc.text(lines, 10, 10);
+      doc.save("Aloram_Travels_Bill.pdf");
+    };
+
+    window.generateBill = function() {
+      const date = document.getElementById("date").value;
+      const customerName = document.getElementById("customerName").value;
+      const mobile = document.getElementById("mobile").value;
+      const address = document.getElementById("address").value;
+      const pickup = document.getElementById("pickup").value;
+      const drop = document.getElementById("drop").value;
+      const distance = parseFloat(document.getElementById("distance").value) || 0;
+      const rate = parseFloat(document.getElementById("rate").value) || 0;
+      const toll = parseFloat(document.getElementById("toll").value) || 0;
+      const parking = parseFloat(document.getElementById("parking").value) || 0;
+      const nightCharge = parseFloat(document.getElementById("nightCharge").value) || 0;
+
+      const baseFare = distance * rate;
+      const total = baseFare + toll + parking + nightCharge;
+
+      document.getElementById("billDate").textContent = new Date(date).toLocaleDateString('en-IN');
+      document.getElementById("billName").textContent = customerName;
+      document.getElementById("billMobile").textContent = mobile;
+      document.getElementById("billAddress").textContent = address;
+      document.getElementById("billPickup").textContent = pickup;
+      document.getElementById("billDrop").textContent = drop;
+      document.getElementById("billDistance").textContent = distance.toFixed(2);
+      document.getElementById("billRate").textContent = rate.toFixed(2);
+      document.getElementById("billFare").textContent = baseFare.toFixed(2);
+      document.getElementById("billToll").textContent = toll.toFixed(2);
+      document.getElementById("billParking").textContent = parking.toFixed(2);
+      document.getElementById("billNight").textContent = nightCharge.toFixed(2);
+      document.getElementById("totalAmount").textContent = total.toFixed(2);
+      document.getElementById("bill").style.display = "block";
+    };
+  </script>
+</body>
+</html>
